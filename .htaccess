@@ -1,0 +1,58 @@
+<IfModule mod_rewrite.c>
+
+# Rewrite engine
+Options +FollowSymlinks
+RewriteEngine On
+#RewriteBase /
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+#RewriteRule ^(.*)$ index.php?/$1
+
+## Page index : url=index.php
+RewriteRule ^accueil.php$  index.php
+
+## Page categorie : url=categorie.php?id=2
+RewriteRule ^categorie-([_0-9]*)-.*.php$  categorie.php?id=$1 
+
+## Page article : url=article.php?id=1&categorie=Politique
+RewriteRule ^article-([_0-9]*)-([_a-zA-Z0-9]*).php$  article.php?id=$1&categorie=$2 
+
+## Page index : url=index.php?date==2
+RewriteRule ^archive-([-0-9]*).php$  index.php?date=$1 
+
+## Page categorie : url=categorie.php?id=4&date=2016-10-04
+RewriteRule ^categorie-([_0-9]*).([-0-9]*).php$  categorie.php?id=$1&date=$2
+
+##	activation ZEND optimizer
+SetEnv ZEND_OPTIMIZER 1
+
+##	suppression de SESSID dans les url
+SetEnv SESSION_USE_TRANS_SID 0
+
+##	serveur en PHP5
+SetEnv PHP_VER 5
+
+##	Commenter la ligne ci-dessous si plantage 
+php_flag zlib.output_compression on
+
+##	Activer le filtre
+SetOutputFilter DEFLATE
+
+##	Certains navigateurs ne peuvent pas avoir GZIP (les vieux) 
+BrowserMatch ^Mozilla/4 gzip-only-text/html
+BrowserMatch ^Mozilla/4\.0678 no-gzip
+
+##	On ne prend pas IE 
+BrowserMatch \bMSIE !no-gzip !gzip-only-text/html
+
+##	On ne compresse pas les images, elles le sont déjà
+SetEnvIfNoCase Request_URI \.(?:gif|jpe?g|png)$ no-gzip dont-vary
+
+##	on gère le cas des proxy 
+##Header append Vary User-Agent env=!dont-vary
+</IfModule>
+<IfModule !mod_rewrite.c>
+ErrorDocument 404 /index.php
+</IfModule>
+
+
